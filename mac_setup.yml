@@ -30,7 +30,7 @@
         - brew
 
     - name: Install brew bundles
-      command: "brew bundle --file BrewFile"
+      command: "brew bundle -v --file rearranged_BrewFile"
       when: homebrew_local.stat.exists or homebrew_opt.stat.exists
       tags:
         - brew-bundle
@@ -55,94 +55,13 @@
       tags:
         - zgen
 
-    - name: Clone zgen
-      git:
-        repo: "https://github.com/tarjoilija/zgen.git"
-        dest: "$HOME/.zgen"
-      when: not zgen.stat.exists
-      tags:
-        - zge
-
-    # - name: Install prezto theme from git.
-    #   git:
-    #     repo: "https://github.com/bhilburn/powerlevel9k.git"
-    #     dest: "{{ ansible_env.HOME}}/.zprezto/modules/prompt/external/powerlevel9k"
-    #     force: true
-
-    # - name: Link prezto theme.
-    #   file:
-    #     src: "{{ ansible_env.HOME}}/.zprezto/modules/prompt/external/powerlevel9k/powerlevel9k.zsh-theme"
-    #     dest: "{{ ansible_env.HOME}}/.zprezto/modules/prompt/functions/prompt_powerlevel9k_setup"
-    #     state: link
-
-    # - name: check if dotfiles are setup
-    #   stat: path=$HOME/.myconf
-    #   register: myconf
-    #   tags:
-    #     - dotfiles
-
-    # - name: check if powerline fonts is setup
-    #   stat: path="{{ ansible_env.HOME }}/Library/Fonts/Go Mono Bold for Powerline.ttf"
-    #   register: powerline
-    #   tags:
-    #     - powerline
-
-    # - name: Clone powerline
-    #   git:
-    #     repo: "https://github.com/powerline/fonts.git"
-    #     dest: "{{ ansible_env.HOME }}/fonts"
-    #     depth: 1
-    #   register: fonts
-    #   when: not powerline.stat.exists
-    #   tags:
-    #     - powerline
-
-    # Not working...∫
-    # - name: install fonts
-    #   command: "./install.sh"
-    #   args:
-    #     chdir: "{{ ansible_env.HOME }}/fonts"
-    #   register: clean_fonts
-    #   when: fonts is defined and not powerline.stat.exists
-    #   tags:
-    #     - powerline
-
-    # - name: clean fonts
-    #   file:
-    #     state: absent
-    #     path: "{{ ansible_env.HOME }}/fonts"
-    #   when: clean_fonts is defined and  powerline.stat.exists
-    #   tags:
-    #     - powerline
-
-    # - name: Setup dotfiles
-    #   git:
-    #     repo: "git@github.com:harbinger55/myconf.git"
-    #     separate_git_dir: "$HOME/.myconf"
-    #     dest: $HOME/myconf-tmp
-    #   register: myconf_cloned
-    #   when: not myconf.stat.exists
-    #   tags:
-    #     - dotfiles
-
-    # - name: sync dotfiles
-    #   synchronize:
-    #     src: ~/myconf-tmp/
-    #     dest: ~/
-    #     recursive: yes
-    #     rsync_opts:
-    #       - "--exclude=.git"
-    #   when: myconf_cloned is defined
-    #   tags:
-    #     - dotfiles
-
-    - name: include VSCODE extentions vars
+    - name: include VSCODE extensions vars
       include_vars:
-        file: vscode_extension_ids.yml
+        file: vscode_extensions.yaml
       tags:
         - vscode
 
-    - name: Install VSCode extentions
+    - name: Install VSCode extensions
       command: "code --install-extension {{ item }}"
       with_items:
         - "{{ vscode_ext }}"
@@ -154,33 +73,6 @@
       user:
         name: "{{ ansible_user_id }}"
         shell: /bin/zsh
-
-    - name: include appstore_packages vars
-      include_vars:
-        file: appstore_packages.yml
-      tags:
-        - appstore
-
-    - name: List installed MAS apps.
-      command: mas list
-      register: mas_list
-      check_mode: false
-      changed_when: false
-      tags:
-        - appstore
-
-    - name: Ensure configured MAS apps are installed.
-      command: mas install "{{ item.id|default(item) }}"
-      with_items: "{{ appstore_packages }}"
-      when: (item.id | default(item) | string) not in mas_list.stdout
-      tags:
-        - appstore
-
-    - name: Upgrade all apps (if configured).
-      command: mas upgrade
-      when: mas_upgrade_all_apps
-      tags:
-        - appstore
 
     - name: include Login Packages vars
       include_vars:
