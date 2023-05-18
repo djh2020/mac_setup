@@ -30,7 +30,7 @@
         - brew
 
     - name: Install brew bundles
-      command: "brew bundle --file BrewFile -q "
+      command: "brew bundle --file BrewFile"
       when: homebrew_local.stat.exists or homebrew_opt.stat.exists
       tags:
         - brew-bundle
